@@ -63,11 +63,10 @@ namespace Arsenal
 				!self.input[0].thrw) &&
 				// Cat IS holding Pickup
 				self.input[0].pckp &&
-				//Body Modes are not climbing / If climbing, on tip of beam
-				(self.bodyMode != Player.BodyModeIndex.ClimbingOnBeam ||
-				self.animation == Player.AnimationIndex.StandOnBeam) &&
-				// Cat has an open hand
-				(self.grasps[0] == null || self.grasps[1] == null))
+				// Cat has both hands open
+				(self.grasps[0] == null && self.grasps[1] == null) &&
+				// Nothing in the stomach
+				self.objectInStomach == null)
 			{
 
 				//Total Spear Progression is set to Arsenal's current spear charge. That way, we know if it's already
@@ -163,14 +162,14 @@ namespace Arsenal
 			if (arsenalSquadCooldown <= 0)
 			{
 				int l = 0;
-				Debug.Log("Going for Arsenal's special Scav AI!");
+				// Debug.Log("Going for Arsenal's special Scav AI!");
 
 			CHECK_WHILE_MARKER:
 				while (l < self.world.game.Players.Count)
 				{
 
 					float scavLove = self.world.game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Scavengers, self.world.RegionNumber, l);
-					Debug.Log("Scav Love for player " + l + ": " + scavLove);
+					// Debug.Log("Scav Love for player " + l + ": " + scavLove);
 					int protectSquadCount = 0;
 					if (scavLove > 0.5f)
 					{
@@ -191,23 +190,24 @@ namespace Arsenal
 						self.world.game.Players[l].Room.gate ||
 						(self.world.game.IsStorySession &&
 						self.world.game.session.characterStats.name.value == "EWarsenal" &&
-						self.world.game.timeInRegionThisCycle < 4800))
+						(self.world.game.timeInRegionThisCycle < 4800 ||
+						scavLove < 0.0f)))
 					{
 						resetArsenalSquadCooldown(scavLove, self);
 						l++;
 						goto CHECK_WHILE_MARKER;
 					}
-					Debug.Log("Squads on Player: " + self.playerAssignedSquads.Count);
-					Debug.Log("Average Squads that should be on Player: " + (protectSquadCount + (int)(scavLove * 2f) + 1));
+					// Debug.Log("Squads on Player: " + self.playerAssignedSquads.Count);
+					// Debug.Log("Average Squads that should be on Player: " + (protectSquadCount + (int)(scavLove * 2f) + 1));
 					if (self.playerAssignedSquads.Count <= protectSquadCount + (int)(scavLove * 2f) &&
 						self.world.game.IsStorySession &&
 						self.world.game.session.characterStats.name.value == "EWarsenal")
 					{
-						Debug.Log("Checking for Free Scavs");
+						// Debug.Log("Checking for Free Scavs");
 						ScavengerAbstractAI saai = self.scavengers[UnityEngine.Random.Range(0, self.scavengers.Count)];
 						if (saai.squad != null && !saai.squad.HasAMission)
 						{
-							Debug.Log("Squad with no Mission Found!");
+							// Debug.Log("Squad with no Mission Found!");
 							self.playerAssignedSquads.Add(saai.squad);
 							saai.squad.targetCreature = self.world.game.Players[l];
 							saai.squad.missionType = ((scavLove > 0f) ?
