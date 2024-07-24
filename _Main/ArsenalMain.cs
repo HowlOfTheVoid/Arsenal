@@ -31,6 +31,9 @@ namespace Arsenal
              *      - Spear from mouth? Maybe hunger cost
              *      - Friendly Scav Squads
             */
+			// Weaker Spear Throws
+			On.Player.ThrownSpear += ArsenalThrowSpear;
+			// Friendly Protector Squads
 			On.ScavengersWorldAI.Outpost.ctor += ArsenalFriendlyOutpost;
 			On.ScavengersWorldAI.Update += ArsenalFriendlyScavs;
 		}
@@ -259,5 +262,15 @@ namespace Arsenal
 			}
 		}
 
+		private void ArsenalThrowSpear(On.Player.orig_ThrownSpear orig, Player self, Spear spear)
+		{
+			orig(self, spear);
+			if (self.GetCat().IsArsenal)
+			{
+				spear.throwModeFrames = 3;
+			}
+		}
+	
+		
 	}
 }
