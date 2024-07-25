@@ -1,8 +1,14 @@
-﻿using IL.MoreSlugcats;
+﻿using Expedition;
+using IL.Menu;
+using IL.MoreSlugcats;
+using Mono.Cecil;
+using MonoMod;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Arsenal
 {
-	[BepInDependency("slime-cubed.slugbase", BepInDependency.DependencyFlags.HardDependency)]
 
 	[BepInPlugin(MOD_ID, MOD_ID, PLUGIN_VERSION)]
 	public class ArsenalMain : BaseUnityPlugin
@@ -36,7 +42,244 @@ namespace Arsenal
 			// Friendly Protector Squads
 			On.ScavengersWorldAI.Outpost.ctor += ArsenalFriendlyOutpost;
 			On.ScavengersWorldAI.Update += ArsenalFriendlyScavs;
+
+			// Arsenal Stats and Initialization for Menu
+			On.SlugcatStats.Name.Init += ArsenalAddName;
+			On.SlugcatStats.getSlugcatStoryRegions += ArsenalStoryRegions;
+			On.SlugcatStats.SlugcatFoodMeter += ArsenalFoodMeter;
+			On.SlugcatStats.ctor += ArsenalStatsCtor;
+			On.SlugcatStats.NourishmentOfObjectEaten += ArsenalNourishment;
+			On.SlugcatStats.AutoGrabBatflys += ArsenalGrabsBatflys;
+			On.SlugcatStats.SlugcatStartingKarma += ArsenalStartingKarma;
+
+			// Arsenal Character Select Menu Stuff
+			On.Menu.SlugcatSelectMenu.SetSlugcatColorOrder += AddArsenalToOrder;
+			On.Menu.SlugcatSelectMenu.SlugcatPage.AddImage += ArsenalMenuImage;
+			On.Menu.SlugcatSelectMenu.SlugcatPageNewGame.ctor += ArsenalNewGamePage;
+			On.Menu.SlugcatSelectMenu.SlugcatPageContinue.ctor += ArsenalContinuePage;
+
+			// Arsenal Expedition Stuff
+			On.Menu.CharacterSelectPage.UpdateSelectedSlugcat += ArsenalSlugcatMenuDesc;
+			On.Menu.CharacterSelectPage.GetSlugcatPortrait += ArsenalPortrait;
 		}
+
+		// SlugcatStats functions and overrides
+		private static readonly SlugcatStats.Name ArsenalName = new SlugcatStats.Name("Arsenal", true);
+		private void ArsenalAddName(On.SlugcatStats.Name.orig_Init orig)
+		{
+			orig();
+			ExtEnum<SlugcatStats.Name>.values.AddEntry(ArsenalName.value);
+			Expedition.ExpeditionGame.unlockedExpeditionSlugcats.Add(ArsenalName);
+			Expedition.ExpeditionGame.playableCharacters.Add(ArsenalName);
+		}
+		private IntVector2 ArsenalFoodMeter(On.SlugcatStats.orig_SlugcatFoodMeter orig, SlugcatStats.Name slugcat)
+		{
+			if(slugcat == ArsenalName)
+			{
+				return new IntVector2(10, 8);
+			}
+			return orig(slugcat);
+		}
+		private void ArsenalStatsCtor(On.SlugcatStats.orig_ctor orig, SlugcatStats self, SlugcatStats.Name slugcat, bool malnourished)
+		{
+			orig(self, slugcat, malnourished);
+			if(slugcat == ArsenalName)
+			{
+				self.bodyWeightFac = 1.4f;
+				self.generalVisibilityBonus = -0.1f;
+				self.visualStealthInSneakMode = 0.6f;
+				self.loudnessFac = 0.8f;
+				self.lungsFac = 1f;
+				self.throwingSkill = 0;
+				self.poleClimbSpeedFac = 1.2f;
+				self.corridorClimbSpeedFac = 1.2f;
+				self.runspeedFac = 1.2f;
+				if (malnourished)
+				{
+					self.bodyWeightFac = 1.6f;
+					self.poleClimbSpeedFac = 0.8f;
+					self.corridorClimbSpeedFac = 0.8f;
+					self.loudnessFac = 0.4f;
+				}
+			}
+		}
+		private int ArsenalNourishment(On.SlugcatStats.orig_NourishmentOfObjectEaten orig, SlugcatStats.Name slugcat, IPlayerEdible eatenObject)
+		{
+			if(
+				// If we are considering Arsenal as the eater
+				slugcat == ArsenalName &&
+				// AND if it is a corpse of a creature
+				eatenObject is Creature && (eatenObject as Creature).dead && 
+				// AND The corpse is not a Fly or Baby Needleworm
+				!(eatenObject is Fly || eatenObject is SmallNeedleWorm || 
+				// OR If it is a Centipede, it better not be small
+				(eatenObject is Centipede && (eatenObject as Centipede).Small)))
+			{
+				// Value of body is multiplied by 1.5.
+				return 6 * eatenObject.FoodPoints;
+			}
+			return orig(slugcat, eatenObject);
+		}
+		private bool ArsenalGrabsBatflys(On.SlugcatStats.orig_AutoGrabBatflys orig, SlugcatStats.Name slugcatNum)
+		{
+			if(slugcatNum == ArsenalName)
+			{
+				return true;
+			}
+			return orig(slugcatNum);
+		}
+		private int ArsenalStartingKarma(On.SlugcatStats.orig_SlugcatStartingKarma orig, SlugcatStats.Name slugcatName)
+		{
+			if(slugcatName == ArsenalName)
+			{
+				return 2;
+			}
+			return orig(slugcatName);
+		}
+		private string[] ArsenalStoryRegions(On.SlugcatStats.orig_getSlugcatStoryRegions orig, SlugcatStats.Name i)
+		{
+			if (i == ArsenalName)
+			{
+				string[] source = new string[]
+				{
+					"SU",
+					"HI",
+					"DS",
+					"CC",
+					"GW",
+					"SH",
+					"VS",
+					"LM",
+					"SI",
+					"LF",
+					"UW",
+					"SS",
+					"SB",
+					"DM"
+				};
+				return source;
+			}
+			else
+			{
+				return orig(i);
+			}
+		}
+		
+
+
+		// Arsenal Character Select Stuff
+		private void AddArsenalToOrder(On.Menu.SlugcatSelectMenu.orig_SetSlugcatColorOrder orig, Menu.SlugcatSelectMenu self)
+		{
+			orig(self);
+			self.slugcatColorOrder.Add(ArsenalName);
+		}
+		private void ArsenalMenuImage(On.Menu.SlugcatSelectMenu.SlugcatPage.orig_AddImage orig, Menu.SlugcatSelectMenu.SlugcatPage self, bool ascended)
+		{
+			if (self.slugcatNumber == ArsenalName)
+			{
+				if (ascended)
+				{
+					// SET SCENE ID TO ARSENAL AS GHOST
+				}
+				else
+				{
+					// SET SCENE ID TO ARSENAL NORMALLY
+				}
+/*				self.sceneOffset = new Vector2(10f, 75f);
+				self.slugcatDepth = 3f;
+				self.markOffset = new Vector2(0f, 0f);
+				self.glowOffset = new Vector2(0f, -10f);
+
+				self.sceneOffset.x = self.sceneOffset.x - (1366f - self.menu.manager.rainWorld.options.ScreenSize.x) / 2f;
+				self.slugcatImage = new Menu.InteractiveMenuScene(self.menu, self, Menu.MenuScene.SceneID.Slugcat_White); // <-- CHANGE THIS TO SCENE_ID LATER!!!!!
+				self.subObjects.Add(self.slugcatImage);
+				if (self.HasMark)
+				{
+					self.markSquare = new FSprite("pixel", true);
+					self.markSquare.scale = 14f;
+					self.markSquare.color = Color.Lerp(self.effectColor, Color.white, 0.7f);
+					self.Container.AddChild(self.markSquare);
+					self.markGlow = new FSprite("Futile_White", true);
+					self.markGlow.shader = self.menu.manager.rainWorld.Shaders["FlatLight"];
+					self.markGlow.color = self.effectColor;
+					self.Container.AddChild(self.markGlow);   
+				} */
+			}
+			else
+			{
+				orig(self, ascended);
+			}
+		}
+		private void ArsenalNewGamePage(On.Menu.SlugcatSelectMenu.SlugcatPageNewGame.orig_ctor orig, Menu.SlugcatSelectMenu.SlugcatPageNewGame self, Menu.Menu menu, Menu.MenuObject owner, int pageIndex, SlugcatStats.Name slugcatNumber)
+		{
+			orig(self, menu, owner, pageIndex, slugcatNumber);
+			Menu.SlugcatSelectMenu slugcatSelectMenu = menu as Menu.SlugcatSelectMenu;
+			string name, description;
+			if(slugcatNumber == ArsenalName)
+			{
+				name = menu.Translate("THE ARSENAL");
+				description = menu.Translate("A crafty creature with the ability to produce spears, but not the strength to throw them.<LINE>Making friends may be your only means to survival...");
+				description = Custom.ReplaceLineDelimeters(description);
+				int num = description.Count((char f) => f == '\n');
+				float num2 = 0f;
+				if (num > 1)
+				{
+					num2 = 30f;
+				}
+				self.difficultyLabel = new Menu.MenuLabel(menu, self, name, new Vector2(-1000f, self.imagePos.y - 249f + num2), new Vector2(200f, 30f), true);
+				self.difficultyLabel.label.alignment = FLabelAlignment.Center;
+				self.subObjects.Add(self.difficultyLabel);
+				self.infoLabel = new Menu.MenuLabel(menu, self, description, new Vector2(-1000f, self.imagePos.y - 249f - 60f + num2 / 2f), new Vector2(400f, 60f), true);
+				self.infoLabel.label.alignment = FLabelAlignment.Center;
+				self.subObjects.Add(self.infoLabel);
+				if (num > 1)
+				{
+					self.imagePos.y = self.imagePos.y + 30f;
+					self.sceneOffset.y = self.sceneOffset.y + 30f;
+				}
+				if (!slugcatSelectMenu.SlugcatUnlocked(slugcatNumber))
+				{
+					self.difficultyLabel.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.VeryDarkGrey);
+					self.infoLabel.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.VeryDarkGrey);
+					return;
+				}
+				self.difficultyLabel.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.MediumGrey);
+				self.infoLabel.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.DarkGrey);
+			}
+		}
+		private void ArsenalContinuePage(On.Menu.SlugcatSelectMenu.SlugcatPageContinue.orig_ctor orig, Menu.SlugcatSelectMenu.SlugcatPageContinue self, Menu.Menu menu, Menu.MenuObject owner, int pageIndex, SlugcatStats.Name slugcatNumber)
+		{
+			orig(self, menu, owner, pageIndex, slugcatNumber);
+			if (slugcatNumber == ArsenalName)
+			{
+				(self as Menu.SlugcatSelectMenu.SlugcatPage).AddImage(self.saveGameData.ascended);
+			}
+		}
+
+
+		// Arsenal Expedition Updates
+		private void ArsenalSlugcatMenuDesc(On.Menu.CharacterSelectPage.orig_UpdateSelectedSlugcat orig, Menu.CharacterSelectPage self, int num)
+		{
+			orig(self, num);
+			SlugcatStats.Name name = ExpeditionGame.playableCharacters[num];
+			ExpeditionData.slugcatPlayer = name;
+			if(name == ArsenalName)
+			{
+				self.slugcatName.text = self.menu.Translate("THE ARSENAL");
+				self.slugcatDescription.text = self.menu.Translate("Though it may lack the strength to do so alone,<LINE> with allies alongside them, the Arsenal sets out once more.").Replace("<LINE>", Environment.NewLine);
+				ChallengeOrganizer.filterChallengeTypes = new List<string>();
+				self.waitForSaveData = true;
+			}
+		}
+		private Menu.MenuIllustration ArsenalPortrait(On.Menu.CharacterSelectPage.orig_GetSlugcatPortrait orig, Menu.CharacterSelectPage self, SlugcatStats.Name slugcat, Vector2 pos)
+		{
+			if(slugcat == ArsenalName)
+			{
+				return new Menu.MenuIllustration(self.menu, self, "illustrations", "multiplayerportrait41-arsenal", pos, true, true);
+			}
+			return orig(self, slugcat, pos);
+		}
+
 
 
 		// Checks if the player is Arsenal, and sets "isArsenal" to the player's booleans if so. This helps set up a bool for Arsenal's abilities later.
@@ -271,6 +514,5 @@ namespace Arsenal
 			}
 		}
 	
-		
 	}
 }
