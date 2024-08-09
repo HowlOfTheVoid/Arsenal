@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Arsenal")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0276aa7ad84a5f7347b96064524de3f4fe73b68c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc2f75d587d05504f1eb0ce75dbd4d81030d8eaa")]
 [assembly: System.Reflection.AssemblyProductAttribute("Arsenal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Arsenal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
