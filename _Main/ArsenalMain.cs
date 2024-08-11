@@ -29,7 +29,17 @@ namespace Arsenal
 			On.Player.ctor += PlayerCTORHook;
 
 			On.RainWorld.OnModsInit += WrapInit.Wrapper(LoadResources);
-			
+
+			ArsenalSelectMenu.Init();
+			ArsenalStats.Init();
+			ArsenalSkills.Init();
+			ArsenalExpeditionSetup.Init();
+			ArsenalDefaultColors.Init();
+			ArsenalBeginnings.Init();
+
+			ArsenalScavAI arsenalScavAI = new ArsenalScavAI();
+			arsenalScavAI.Init();
+
 		}
 
 		private void LoadResources(RainWorld rainWorld)
@@ -38,16 +48,6 @@ namespace Arsenal
 			try
 			{
 				if (IsInit) return;
-
-				ArsenalSelectMenu.Init();
-				ArsenalStats.Init();
-				ArsenalSkills.Init();
-				ArsenalExpeditionSetup.Init();
-				ArsenalDefaultColors.Init();
-
-				ArsenalScavAI arsenalScavAI = new ArsenalScavAI();
-				arsenalScavAI.Init();
-
 
 
 				On.RainWorldGame.ShutDownProcess += RainWorldGameOnShutDownProcess;
