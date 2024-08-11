@@ -22,15 +22,10 @@ namespace Arsenal
 		public const string PLUGIN_VERSION = "0.0.1";
 
 		public bool IsInit;
-
-		public int[] protectorSquads;
-		public int arsenalSquadCooldown = 0;
-
 		public static readonly SlugcatStats.Name ArsenalName = new SlugcatStats.Name("Arsenal", true);
 
 		private void OnEnable()
 		{
-			//TODO: Further tweaks to being Arsenal
 			On.Player.ctor += PlayerCTORHook;
 
 			On.RainWorld.OnModsInit += WrapInit.Wrapper(LoadResources);

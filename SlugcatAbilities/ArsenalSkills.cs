@@ -11,31 +11,34 @@ namespace Arsenal
 
 		public static void Init()
 		{
-
-			//TODO: Producing the Spears
-			On.Player.GrabUpdate += ArsenalGrabUpdate;
-
-
 			/*
              *  TODO LIST:
              *      - Insta-Spear Walls
              *      - Move Tutorial Dialogues
-             *      - Spear from mouth? Maybe hunger cost
-             *      - Friendly Scav Squads
             */
+
 			// Weaker Spear Throws
 			On.Player.ThrownSpear += ArsenalThrowSpear;
+
+			// Producing the Spears and Throwing them from a crawl position
+			On.Player.GrabUpdate += ArsenalGrabUpdate;
 		}
 
 		// Like Spearmaster, Arsenal has to use GrabUpdate to decide when to pull out spears. This is added to the end of GrabUpdate, so 
 		//    we have to do a lot of similar things to it.
 		private static void ArsenalGrabUpdate(On.Player.orig_GrabUpdate orig, Player self, bool eu)
 		{
+
+			//Total Spear Progression is set to Arsenal's current spear charge. That way, we know if it's already
+			//  part-way though.
+			float spearProg = self.GetCat().ArsSpearCharge;
+			// Debug.Log("Spear Progression: " + spearProg);
+
 			// Invoke origin. Game can't run if it doesn't run its own stuff too-
 			orig(self, eu);
 			if (
 				// Cat type is Arsenal
-				self.GetCat().IsArsenal &&
+				self.slugcatStats.name == ArsenalMain.ArsenalName &&
 				// Cat is not jumping or throwing
 				(!self.input[0].jmp &&
 				!self.input[0].thrw) &&
@@ -47,9 +50,6 @@ namespace Arsenal
 				self.objectInStomach == null)
 			{
 
-				//Total Spear Progression is set to Arsenal's current spear charge. That way, we know if it's already
-				//  part-way though.
-				float spearProg = self.GetCat().ArsSpearCharge;
 				if (spearProg < 0.1f)
 				{
 					self.GetCat().setSpearCharge(Mathf.Lerp(spearProg, 0.11f, 0.1f));
@@ -114,6 +114,7 @@ namespace Arsenal
 					}
 					abstractSpear.realizedObject.firstChunk.HardSetPosition(vector);
 					abstractSpear.realizedObject.firstChunk.vel = Vector2.ClampMagnitude((a3 * 2f + Custom.RNV() * UnityEngine.Random.value) / abstractSpear.realizedObject.firstChunk.mass, 6f);
+					int handUsed = self.FreeHand();
 					if (self.FreeHand() > -1)
 					{
 						self.SlugcatGrab(abstractSpear.realizedObject, self.FreeHand());
@@ -128,6 +129,31 @@ namespace Arsenal
 							(abstractSpear.realizedObject as Spear).jollyCustomColor = new Color?(PlayerGraphics.JollyColor(self.playerState.playerNumber, 2));
 						}
 					}
+
+
+					// Speedy Ejection code (Only should trigger if Arsenal is laying down when producing a spear!
+					if (self.bodyMode == Player.BodyModeIndex.Crawl)
+					{
+						// Throw the Spear with the Strength of Hunter, then Return to Normal
+						self.slugcatStats.name = SlugcatStats.Name.Red;
+						self.slugcatStats.throwingSkill = 4;
+						self.ThrowObject(handUsed, eu);
+						self.slugcatStats.name = ArsenalMain.ArsenalName;
+						self.slugcatStats.throwingSkill = 0;
+					}
+
+				}
+			}
+			// If the input button for pickup is released, push the spear back down.
+			else if (self.slugcatStats.name == ArsenalMain.ArsenalName && !self.input[0].pckp && spearProg > 0f)
+			{
+				self.GetCat().setSpearCharge(Mathf.Lerp(spearProg, 0f, 0.07f));
+
+				// If the progress is less than 5%, just set to 0. Reset SoundPlaying so it'll play again!
+				if(spearProg < 0.05f)
+				{
+					self.GetCat().setSpearCharge(0f);
+					self.GetCat().setSoundPlaying(false);
 				}
 			}
 		}
@@ -136,7 +162,7 @@ namespace Arsenal
 		private static void ArsenalThrowSpear(On.Player.orig_ThrownSpear orig, Player self, Spear spear)
 		{
 			orig(self, spear);
-			if (self.GetCat().IsArsenal)
+			if (self.slugcatStats.name == ArsenalMain.ArsenalName)
 			{
 				spear.throwModeFrames = 3;
 			}
