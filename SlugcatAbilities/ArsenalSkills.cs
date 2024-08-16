@@ -136,7 +136,7 @@ namespace Arsenal
 					{
 						// Throw the Spear with the Strength of Hunter, then Return to Normal
 						self.slugcatStats.name = SlugcatStats.Name.Red;
-						self.slugcatStats.throwingSkill = 4;
+						self.slugcatStats.throwingSkill = 3;
 						self.ThrowObject(handUsed, eu);
 						self.slugcatStats.name = ArsenalMain.ArsenalName;
 						self.slugcatStats.throwingSkill = 0;
