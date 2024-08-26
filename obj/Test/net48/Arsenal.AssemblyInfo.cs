@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Arsenal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Test")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a9defa4b689d2fecc79c2cdcc1d2e79a887848c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4320b6287b22cba6f0bc0499c84c9312e8b0e557")]
 [assembly: System.Reflection.AssemblyProductAttribute("Arsenal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Arsenal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
