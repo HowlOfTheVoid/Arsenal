@@ -13,7 +13,7 @@ namespace Arsenal.CreatureAIs
 
 		public void Init()
 		{
-			//Debug.Log("Arsenal Scav AI Initiated!");
+			// ArseDebug.Log("Arsenal Scav AI Initiated!");
 			// Friendly Protector Squads
 			On.ScavengersWorldAI.Outpost.ctor += ArsenalFriendlyOutpost;
 			On.ScavengersWorldAI.Update += ArsenalFriendlyScavs;
@@ -28,14 +28,14 @@ namespace Arsenal.CreatureAIs
 				if (arsenalSquadCooldown <= 0)
 				{
 					int l = 0;
-				// Debug.Log("Going for Arsenal's special Scav AI!");
+				// ArseDebug.Log("Going for Arsenal's special Scav AI!");
 
 				CHECK_WHILE_MARKER:
 					while (l < self.world.game.Players.Count)
 					{
 
 						float scavLove = self.world.game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Scavengers, self.world.RegionNumber, l);
-						// Debug.Log("Scav Love for player " + l + ": " + scavLove);
+						// ArseDebug.Log("Scav Love for player " + l + ": " + scavLove);
 						int protectSquadCount = 0;
 						if (scavLove > 0.5f)
 						{
@@ -55,7 +55,6 @@ namespace Arsenal.CreatureAIs
 							self.world.game.Players[l].Room.shelter ||
 							self.world.game.Players[l].Room.gate ||
 							(self.world.game.IsStorySession &&
-							self.world.game.session.characterStats.name.value == "EWarsenal" &&
 							(self.world.game.timeInRegionThisCycle < 4800 ||
 							scavLove < 0.0f)))
 						{
@@ -63,24 +62,23 @@ namespace Arsenal.CreatureAIs
 							l++;
 							goto CHECK_WHILE_MARKER;
 						}
-						// Debug.Log("Squads on Player: " + self.playerAssignedSquads.Count);
-						// Debug.Log("Average Squads that should be on Player: " + (protectSquadCount + (int)(scavLove * 2f) + 1));
+						ArseDebug.Log("Squads on Player: " + self.playerAssignedSquads.Count);
+						ArseDebug.Log("Average Squads that should be on Player: " + (protectSquadCount + (int)(scavLove * 2f) + 1));
 						if (self.playerAssignedSquads.Count <= protectSquadCount + (int)(scavLove * 2f) &&
-							self.world.game.IsStorySession &&
-							self.world.game.session.characterStats.name.value == "EWarsenal")
+							self.world.game.IsStorySession)
 						{
-							Debug.Log("Checking for Free Scavs");
+							ArseDebug.Log("Checking for Free Scavs");
 							ScavengerAbstractAI saai = self.scavengers[UnityEngine.Random.Range(0, self.scavengers.Count)];
 							if (saai.squad != null && !saai.squad.HasAMission)
 							{
-								Debug.Log("Squad with no Mission Found!");
+								ArseDebug.Log("Squad with no Mission Found!");
 								self.playerAssignedSquads.Add(saai.squad);
 								saai.squad.targetCreature = self.world.game.Players[l];
 								saai.squad.missionType = ((scavLove > 0f) ?
 									ScavengerAbstractAI.ScavengerSquad.MissionID.ProtectCreature :
 									ScavengerAbstractAI.ScavengerSquad.MissionID.GuardOutpost);
 								resetArsenalSquadCooldown(scavLove, self);
-								Debug.Log("-------A PROTECTION SQUAD IS LOOKING FOR PLAYER: " + saai.squad.missionType.ToString());
+								ArseDebug.Log("-------A PROTECTION SQUAD IS LOOKING FOR PLAYER: " + saai.squad.missionType.ToString());
 							}
 						}
 						else
@@ -94,7 +92,7 @@ namespace Arsenal.CreatureAIs
 				}
 				else
 				{
-					// Debug.Log("Arsenal Squad Cooldown: " + arsenalSquadCooldown);
+					// ArseDebug.Log("Arsenal Squad Cooldown: " + arsenalSquadCooldown);
 					arsenalSquadCooldown--;
 				}
 			}
@@ -102,21 +100,21 @@ namespace Arsenal.CreatureAIs
 
 		private void resetArsenalSquadCooldown(float like, ScavengersWorldAI self)
 		{
-			Debug.Log(self.world.game.IsStorySession);
-			Debug.Log(self.world.game.session.characterStats.name.value);
+			ArseDebug.Log(self.world.game.IsStorySession);
+			ArseDebug.Log(self.world.game.session.characterStats.name.value);
 			if (self.world.game.IsStorySession)
 			{
 				if (self.world.region == null)
 				{
-					Debug.Log("Defaulting Region");
+					ArseDebug.Log("Defaulting Region");
 					arsenalSquadCooldown = ((like >= 0f) ? UnityEngine.Random.Range(800, 1300) : UnityEngine.Random.Range(5000, 8000));
 					return;
 				}
-				Debug.Log("Region is: " + self.world.region.name);
-				Debug.Log("Delay Repeat Min: " + self.world.region.regionParams.scavengerDelayRepeatMin);
-				Debug.Log("Delay Repeat Max: " + self.world.region.regionParams.scavengerDelayRepeatMax);
-				Debug.Log("Delay Initial Min: " + self.world.region.regionParams.scavengerDelayInitialMin);
-				Debug.Log("Delay Initial Max: " + self.world.region.regionParams.scavengerDelayInitialMax);
+				ArseDebug.Log("Region is: " + self.world.region.name);
+				ArseDebug.Log("Delay Repeat Min: " + self.world.region.regionParams.scavengerDelayRepeatMin);
+				ArseDebug.Log("Delay Repeat Max: " + self.world.region.regionParams.scavengerDelayRepeatMax);
+				ArseDebug.Log("Delay Initial Min: " + self.world.region.regionParams.scavengerDelayInitialMin);
+				ArseDebug.Log("Delay Initial Max: " + self.world.region.regionParams.scavengerDelayInitialMax);
 				arsenalSquadCooldown = ((like >= 0f) ? UnityEngine.Random.Range
 					(self.world.region.regionParams.scavengerDelayRepeatMin,
 					self.world.region.regionParams.scavengerDelayRepeatMax) :
@@ -124,7 +122,7 @@ namespace Arsenal.CreatureAIs
 					(self.world.region.regionParams.scavengerDelayInitialMin,
 					self.world.region.regionParams.scavengerDelayInitialMax));
 			}
-			Debug.Log("Scav Cooldown set to: " + arsenalSquadCooldown);
+			ArseDebug.Log("Scav Cooldown set to: " + arsenalSquadCooldown);
 		}
 
 		private void ArsenalFriendlyOutpost(On.ScavengersWorldAI.Outpost.orig_ctor orig, ScavengersWorldAI.Outpost self, ScavengersWorldAI worldAI, int room)

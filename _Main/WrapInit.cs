@@ -25,7 +25,7 @@ internal class WrapInit
 			}
 			catch (Exception e)
 			{
-				Debug.LogException(e);
+				ArseDebug.LogException(e);
 			}
 		};
 	}

@@ -25,14 +25,8 @@
 		<Reference Include="BepInEx">
 		  <HintPath>lib\BepInEx.dll</HintPath>
 		</Reference>
-		<Reference Include="DressMySlugcat">
-		  <HintPath>lib\DressMySlugcat.dll</HintPath>
-		</Reference>
 		<Reference Include="FakeAchievements">
 		  <HintPath>lib\FakeAchievements.dll</HintPath>
-		</Reference>
-		<Reference Include="Fisobs">
-		  <HintPath>lib\Fisobs.dll</HintPath>
 		</Reference>
 		<Reference Include="HOOKS-Assembly-CSharp">
 		  <HintPath>lib\HOOKS-Assembly-CSharp.dll</HintPath>
@@ -54,12 +48,6 @@
 		</Reference>
 		<Reference Include="Assembly-CSharp">
 		  <HintPath>lib\PUBLIC-Assembly-CSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="RegionKit">
-		  <HintPath>lib\RegionKit.dll</HintPath>
-		</Reference>
-		<Reference Include="SlugBase">
-		  <HintPath>lib\SlugBase.dll</HintPath>
 		</Reference>
 		<Reference Include="Unity.Mathematics">
 		  <HintPath>..\..\..\SteamLibrary\steamapps\common\Rain World\RainWorld_Data\Managed\Unity.Mathematics.dll</HintPath>
