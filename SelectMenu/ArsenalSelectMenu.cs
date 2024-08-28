@@ -34,11 +34,11 @@ namespace Arsenal
 		{
 			if (slugcatNumber != ArsenalMain.ArsenalName)
 			{
-				Debug.Log("Not Arsenal Name for Menu");
+				// ArseDebug.Log("Not Arsenal Name for Menu");
 				orig(self, menu, owner, pageIndex, slugcatNumber);
 				return;
 			}
-			Debug.Log("Arsenal Detected!");
+			// ArseDebug.Log("Arsenal Detected!");
 			Menu.SlugcatSelectMenu slugcatSelectMenu = menu as Menu.SlugcatSelectMenu;
 
 			self.menu = menu;

@@ -18,7 +18,7 @@ namespace Arsenal
 			
 			EveryoneHasFriendly = config.Bind("EveryoneHasFriendly", false);
 
-			ArseDebug.Log("Arsenal Options Initialized!!!");
+			// ArseDebug.Log("Arsenal Options Initialized!!!");
 		}
 
 		public override void Initialize()
@@ -36,7 +36,7 @@ namespace Arsenal
 
 				// First Row Options (y = 520f)
 
-				new OpLabel(10f, 520f, "Everyone gets Friendly Scav Squads!"),
+				new OpLabel(10f, 520f, "Everyone gets Friendly Scav Squads! (NOT YET IMPLEMENTED)"),
 				new OpCheckBox(EveryoneHasFriendly, new Vector2(230f, 490f))
 
 			};
