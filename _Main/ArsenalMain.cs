@@ -1,18 +1,4 @@
-﻿using Arsenal.CreatureAIs;
-using Arsenal.Expedition;
-using Expedition;
-using Menu;
-using MoreSlugcats;
-using Menu;
-using Mono.Cecil;
-using MonoMod;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-using IL;
-using On;
-
-namespace Arsenal
+﻿namespace Arsenal
 {
 
 	[BepInPlugin("EW.thearsenal", "arsenal", "0.0.1")]
