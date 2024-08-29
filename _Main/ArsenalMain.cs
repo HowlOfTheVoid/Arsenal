@@ -2,6 +2,12 @@
 {
 
 	[BepInPlugin("EW.thearsenal", "arsenal", "0.0.1")]
+
+	// Soft Dependency on MSC to make sure MSC Cats get added first
+	[BepInDependency("MoreSlugCats", BepInDependency.DependencyFlags.SoftDependency)]
+	// Soft Dependency on Slugbase to prevent mess ups in Expedition Menu generation.
+	[BepInDependency("slime-cubed.slugbase", BepInDependency.DependencyFlags.SoftDependency)]
+
 	public class ArsenalMain : BaseUnityPlugin
 	{
 		public const string PLUGIN_GUID = "EW.thearsenal";

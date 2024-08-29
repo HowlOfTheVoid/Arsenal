@@ -19,8 +19,6 @@ namespace Arsenal
 		{
 			orig();
 			ExtEnum<SlugcatStats.Name>.values.AddEntry(ArsenalMain.ArsenalName.value);
-			ExpeditionGame.unlockedExpeditionSlugcats.Add(ArsenalMain.ArsenalName);
-			ExpeditionGame.playableCharacters.Add(ArsenalMain.ArsenalName);
 		}
 		private static IntVector2 ArsenalFoodMeter(On.SlugcatStats.orig_SlugcatFoodMeter orig, SlugcatStats.Name slugcat)
 		{
