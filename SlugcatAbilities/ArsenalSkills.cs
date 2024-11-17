@@ -53,13 +53,13 @@
 					if (!self.GetCat().PlayingSound)
 					{
 						self.GetCat().setSoundPlaying(true);
-						self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.SM_Spear_Pull, 0f, 1f, 1f + UnityEngine.Random.value * 0.5f);
+						self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, 0f, 0.6f, 1f + UnityEngine.Random.value * 0.5f);
 					}
 					self.GetCat().setSpearCharge(Mathf.Lerp(spearProg, 1f, 0.05f));
 				}
 
 				// Makes head shake if spear is more than halfway ready
-				if (spearProg > 0.6f)
+				if (spearProg > 0.2f)
 				{
 					(self.graphicsModule as PlayerGraphics).head.vel += Custom.RNV() * ((spearProg - 0.6f) / 0.4f) * 2f;
 				}
@@ -74,7 +74,7 @@
 				if (spearProg == 1f)
 				{
 					// Play snap sound, return "setSoundPlaying" to false for next spear pull.
-					self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.SM_Spear_Grab, 0f, 1f, 0.5f + UnityEngine.Random.value * 1.5f);
+					self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, 0f, 1.5f, 0.5f + UnityEngine.Random.value * 1.5f);
 					self.GetCat().setSoundPlaying(false);
 
 					// Create drips and sparks around the player's head, like spearmaster's tail
@@ -126,7 +126,7 @@
 
 
 					// Speedy Ejection code (Only should trigger if Arsenal is laying down when producing a spear!
-					if (self.bodyMode == Player.BodyModeIndex.Crawl)
+					if (self.bodyMode == Player.BodyModeIndex.Crawl && self.FoodInStomach > 0)
 					{
 						// Throw the Spear with the Strength of Hunter, then Return to Normal
 						self.slugcatStats.name = SlugcatStats.Name.Red;
@@ -134,6 +134,7 @@
 						self.ThrowObject(handUsed, eu);
 						self.slugcatStats.name = ArsenalMain.ArsenalName;
 						self.slugcatStats.throwingSkill = 0;
+						self.SubtractFood(1);
 					}
 
 				}
